@@ -6,7 +6,7 @@ import time
 import sys
 
 imgfile = 'dog.jpg'
-port = 3000
+port = 4000
 request_url = 'edusense-compute-4.andrew.cmu.edu'
 
 if len(sys.argv)>1:

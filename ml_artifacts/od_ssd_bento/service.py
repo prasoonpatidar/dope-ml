@@ -8,8 +8,8 @@ from torchvision import transforms
 import time
 
 # Load the model
-od_runner = bentoml.pytorch.load_runner('object_detection_frcnn:latest')
-model = bentoml.pytorch.load('object_detection_frcnn:latest')
+od_runner = bentoml.pytorch.load_runner('object_detection_ssd:latest')
+model = bentoml.pytorch.load('object_detection_ssd:latest')
 
 # create new service
 od_svc = bentoml.Service('object_detection',runners=[od_runner])
@@ -39,9 +39,9 @@ def detect(np_input_image):
     # with torch.no_grad():
     output = od_model(input_tensor)[0]
     result = {
-        'boxes':output['boxes'].detach().numpy().tolist(),
-        'labels':output['labels'].detach().numpy().tolist(),
-        'scores':output['scores'].detach().numpy().tolist(),
+        'boxes':output['boxes'].cpu().detach().numpy().tolist(),
+        'labels':output['labels'].cpu().detach().numpy().tolist(),
+        'scores':output['scores'].cpu().detach().numpy().tolist(),
         'time':time.time()-start_time
     }
     return result

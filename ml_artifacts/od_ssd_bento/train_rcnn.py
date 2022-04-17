@@ -1,9 +1,11 @@
 from torchvision.models.detection.faster_rcnn import fasterrcnn_resnet50_fpn
+from torchvision.models.detection.ssd import ssd300_vgg16
 import numpy as np
 import pickle
 import torch
 import cv2
 import bentoml
+import time
 
 
 # script arguments
@@ -19,6 +21,7 @@ tag = bentoml.pytorch.save('object_detection_frcnn',frcnn_model)
 
 # test saved models
 # test saved model
+start_time = time.time()
 saved_od_model = bentoml.pytorch.load("object_detection_frcnn:latest")
 
 CLASSES = pickle.loads(open(labels_file, "rb").read())
