@@ -33,6 +33,7 @@ def detect(np_input_image):
 
     # move the input and model to GPU for speed if available
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Device:",DEVICE)
     input_tensor = input_tensor.to(DEVICE)
     od_model = model.to(DEVICE)
 
