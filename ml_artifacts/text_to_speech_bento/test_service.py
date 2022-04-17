@@ -14,3 +14,4 @@ total_time = time.time()-st
 response_dict = json.loads(response.text)
 print(total_time)
 
+#conda config --set auto_activate_base false
