@@ -1,11 +1,9 @@
 import numpy as np
 from PIL import Image as PILImage
 import bentoml
-from bentoml.io import Image, NumpyNdarray, JSON
+from bentoml.io import Image, NumpyNdarray
 import torch, torch.nn
 from torchvision import transforms
-import time
-import json
 
 
 # load the runner
@@ -27,13 +25,10 @@ def resnet_preprocess(img):
 
 
 # main service wrapper for deployment
-@resnet_svc.api(
-    input=NumpyNdarray(),
-    output= JSON(),
-)
+@resnet_svc.api(input=NumpyNdarray(), output=NumpyNdarray())
 def classify(np_input_image):
     input_image = PILImage.fromarray(np.uint8(np_input_image))
-    start_time = time.time()
+
     input_tensor = resnet_preprocess(input_image)
     print(input_tensor.shape)
     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch as expected by the model
@@ -49,8 +44,4 @@ def classify(np_input_image):
     # print(output[0])
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
     probabilities = torch.nn.functional.softmax(output[0], dim=0)
-    result = {
-        'probabilities':probabilities.detach().numpy().tolist(),
-        'time':time.time()-start_time
-    }
-    return result
+    return probabilities.detach().numpy()

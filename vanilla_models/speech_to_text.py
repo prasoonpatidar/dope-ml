@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import requests
 import torch
 import torchaudio
+import soundfile as sf
 
 matplotlib.rcParams["figure.figsize"] = [16.0, 4.8]
 
@@ -29,7 +30,6 @@ if not os.path.exists(SPEECH_FILE):
 bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
 
 print("Sample Rate:", bundle.sample_rate)
-
 print("Labels:", bundle.get_labels())
 
 model = bundle.get_model().to(device)

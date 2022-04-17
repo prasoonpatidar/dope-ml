@@ -1,0 +1,17 @@
+# bentofile.yaml
+service: "service.py:od_svc"  # A convention for locating your service: <YOUR_SERVICE_PY>:<YOUR_SERVICE_ANNOTATION>
+description: "file: ./README.md"
+labels:
+    owner: dopeml-team
+    stage: demo
+include:
+ - "*.py"  # A pattern for matching which files to include in the bento
+ - "*.pickle"
+ - "*.jpg"
+python:
+  packages:
+   - pandas
+   - numpy
+   - torch
+   - torchvision==0.11.2
+   - pillow
