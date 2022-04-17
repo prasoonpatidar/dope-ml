@@ -5,7 +5,7 @@ import torchaudio
 import bentoml
 from bentoml.io import JSON, NumpyNdarray, Multipart
 
-stt_model = bentoml.pytorch.load('stt_model:latest')
+model = bentoml.pytorch.load('stt_model:latest')
 stt_model_runner = bentoml.pytorch.load_runner('stt_model:latest')
 stt_decoder = bentoml.pytorch.load('stt_decoder:latest')
 stt_decoder_runner = bentoml.pytorch.load_runner('stt_decoder:latest')
@@ -29,9 +29,12 @@ def convert(request_json):
     waveform = torch.from_numpy(np_waveform).float().unsqueeze(0)
     if sampling_rate != bundle_sampling_rate:
         waveform = torchaudio.functional.resample(waveform, sampling_rate, bundle_sampling_rate)
-
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    waveform = waveform.to(DEVICE)
+    stt_model = model.to(DEVICE)
     emission, _ = stt_model(waveform)
-    transcript = stt_decoder(emission[0])
+
+    transcript = stt_decoder(emission.cpu()[0])
 
     return {
         'transcript':transcript,

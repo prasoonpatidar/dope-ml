@@ -50,7 +50,7 @@ if in_sampling_rate != bundle_sampling_rate:
     waveform = torchaudio.functional.resample(waveform, in_sampling_rate, bundle_sampling_rate)
 
 emission, _ = saved_model(waveform)
-transcript = saved_decoder(emission[0])
+transcript = saved_decoder(emission.cpu()[0])
 print(transcript)
 
 
