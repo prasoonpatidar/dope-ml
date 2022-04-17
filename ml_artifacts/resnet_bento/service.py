@@ -48,7 +48,7 @@ def classify(np_input_image):
     # Tensor of shape 1000, with confidence scores over Imagenet's 1000 classes
     # print(output[0])
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
-    probabilities = torch.nn.functional.softmax(output[0], dim=0)
+    probabilities = torch.nn.functional.softmax(output[0], dim=0).cpu()
     result = {
         'probabilities':probabilities.detach().numpy().tolist(),
         'time':time.time()-start_time

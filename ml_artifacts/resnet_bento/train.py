@@ -7,7 +7,7 @@ import bentoml
 
 # get resnet model
 resnet = models.resnet18(pretrained=True)
-
+resnet.eval()
 # save bentoml runner
 tag = bentoml.pytorch.save("resnet",resnet)
 # bentoml.save()
