@@ -47,12 +47,13 @@ def classify(np_input_image):
     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch as expected by the model
     print(input_batch.shape)
     # move the input and model to GPU for speed if available
-    if torch.cuda.is_available():
-        input_batch = input_batch.to('cuda')
-        resnet_model.cuda()
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Device:", DEVICE)
+    input_batch = input_batch.to('cuda')
+    resnet_model_device = resnet_model.to(DEVICE)
 
     # with torch.no_grad():
-    output = resnet_model(input_batch)
+    output = resnet_model_device(input_batch)
     # Tensor of shape 1000, with confidence scores over Imagenet's 1000 classes
     # print(output[0])
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
