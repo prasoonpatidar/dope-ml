@@ -6,9 +6,14 @@ import torch, torch.nn
 from torchvision import transforms
 import time
 import json
+from queue import Queue
 import psutil
+from GPUStatMonitor import GPUStatMonitor, get_all_queue_result
 import GPUtil
+
+#setup stat monitor
 gpus = GPUtil.getGPUs()
+gpu_stat_queue = Queue()
 
 # load the runner
 resnet_runner = bentoml.pytorch.load_runner("resnet:latest")
@@ -36,6 +41,8 @@ def resnet_preprocess(img):
 def classify(np_input_image):
     psutil.cpu_percent(interval=0.1)
     memory_usage_pre = psutil.virtual_memory()
+    gpu_m=GPUStatMonitor(gpu_stat_queue)
+    gpu_m.start()
     if len(gpus) > 0:
         gpu_pre = [(gpu_device.id, gpu_device.load, gpu_device.memoryUtil) for gpu_device in gpus]
     else:
@@ -65,6 +72,8 @@ def classify(np_input_image):
     else:
         gpu_post = []
     memory_usage_post = psutil.virtual_memory()
+    gpu_m.stop()
+
     result = {
         'probabilities':probabilities.detach().numpy().tolist(),
         'time':inf_time,
@@ -73,6 +82,7 @@ def classify(np_input_image):
         'ram_pre':list(memory_usage_pre),
         'ram_post':list(memory_usage_post),
         'gpu_pre':gpu_pre,
-        'gpu_post':gpu_post
+        'gpu_post':gpu_post,
+        'gpu_m':get_all_queue_result(gpu_stat_queue)
     }
     return result
