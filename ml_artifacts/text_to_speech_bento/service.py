@@ -32,7 +32,7 @@ def convert(request_payload):
     lengths = lengths.to(DEVICE)
     spec, spec_lengths, _ = tts_model.infer(processed, lengths)
     waveforms, lengths = tts_decoder(spec, spec_lengths)
-    np_waveform = waveforms[0:1].squeeze().detach().numpy()
+    np_waveform = waveforms.cpu()[0:1].squeeze().detach().numpy()
     sampling_rate = tts_decoder.sample_rate
     return {
         'audio_out':np_waveform.tolist(),

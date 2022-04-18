@@ -6,7 +6,7 @@ import sys
 
 port = 3000
 request_url = 'edusense-compute-4.andrew.cmu.edu'
-# request_url = '0.0.0.0'
+request_url = '0.0.0.0'
 
 if len(sys.argv)>1:
     port = int(sys.argv[1])

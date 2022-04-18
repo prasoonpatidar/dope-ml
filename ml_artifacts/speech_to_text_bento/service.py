@@ -30,6 +30,7 @@ def convert(request_json):
     if sampling_rate != bundle_sampling_rate:
         waveform = torchaudio.functional.resample(waveform, sampling_rate, bundle_sampling_rate)
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Device: ", DEVICE)
     waveform = waveform.to(DEVICE)
     stt_model = model.to(DEVICE)
     emission, _ = stt_model(waveform)
