@@ -50,7 +50,7 @@ segments_tensors = torch.tensor([segments_ids])
 #call model
 predictions = bert_lm_model(tokens_tensor, segments_tensors)
 predicted_index = torch.argmax(predictions[0, masked_index]).item()
-predicted_token = tokenizer.convert_ids_to_tokens([predicted_index])[0]
+predicted_token = bert_tokenizer.convert_ids_to_tokens([predicted_index])[0]
 print(predicted_token)
 
 

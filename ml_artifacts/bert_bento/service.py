@@ -35,8 +35,16 @@ def predict(request_payload):
     segments_tensors = torch.tensor([segments_ids])
     # print(segments_tensors)
 
+    # check device configs
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Device:", DEVICE)
+    bert_lm_model.to(DEVICE)
+    tokens_tensor.to(DEVICE)
+    segments_tensors.to(DEVICE)
+
     # call model
     predictions = bert_lm_model(tokens_tensor, segments_tensors)
+    predictions = predictions.cpu()
     predicted_index = torch.argmax(predictions[0, masked_index]).item()
     predicted_token = bert_tokenizer.convert_ids_to_tokens([predicted_index])[0]
 
