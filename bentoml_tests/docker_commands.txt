@@ -1,0 +1,32 @@
+Backend 1: 2CPUs, 2-3GB Memory, No GPU
+
+docker run --name resnet_b1 --memory 2g --cpuset-cpus 1,2 -p 4001:3000 resnet_service:23wjsyf7hkf3eusu
+docker run --name od_b1 --memory 2g --cpuset-cpus 3,4 -p 4002:3000 object_detection:bgot4pf7hof3eusu
+docker run --name stt_b1 --memory 3g --cpuset-cpus 5,6 -p 4003:3000 stt_service:eo5h47v7hof3eusu
+docker run --name tts_b1 --memory 2g --cpuset-cpus 7,8 -p 4004:3000 tts_service:g5zanhv7hof3eusu
+docker run --name bert_b1 --memory 3g --cpuset-cpus 9,10 -p 4005:3000 bert_service:6v2ouxv7hkf3eusu
+
+Backend 2:4CPUs, 4GB Memory, No GPU
+
+docker run --name resnet_b2 --memory 4g --cpuset-cpus 11-14 -p 5001:3000 resnet_service:23wjsyf7hkf3eusu
+docker run --name od_b2 --memory 4g --cpuset-cpus 15-18 -p 5002:3000 object_detection:bgot4pf7hof3eusu
+docker run --name stt_b2 --memory 4g --cpuset-cpus 19-22 -p 5003:3000 stt_service:eo5h47v7hof3eusu
+docker run --name tts_b2 --memory 4g --cpuset-cpus 23-26 -p 5004:3000 tts_service:g5zanhv7hof3eusu
+docker run --name bert_b2 --memory 4g --cpuset-cpus 27-30 -p 5005:3000 bert_service:6v2ouxv7hkf3eusu
+
+
+Backend 3: 2CPUs, 3GB Memory, 1 GPU
+
+docker run --name resnet_b3 --memory 3g --cpuset-cpus 31,32 --gpus "device=0" -p 6001:3000 resnet_service:23wjsyf7hkf3eusu
+docker run --name od_b3 --memory 3g --cpuset-cpus 33,34 --gpus "device=0" -p 6002:3000 object_detection:bgot4pf7hof3eusu
+docker run --name stt_b3 --memory 4.5g --cpuset-cpus 35,36 --gpus "device=0" -p 6003:3000 stt_service:eo5h47v7hof3eusu
+docker run --name tts_b3 --memory 4g --cpuset-cpus 37,38 --gpus "device=0" -p 6004:3000 tts_service:g5zanhv7hof3eusu
+docker run --name bert_b3 --memory 4g --cpuset-cpus 39,40 --gpus "device=0" -p 6005:3000 bert_service:6v2ouxv7hkf3eusu
+
+Backend 4: 4CPUs, 4GB Memory, 1 GPU
+
+docker run --name resnet_b4 --memory 6g --cpuset-cpus 41-44 --gpus "device=1" -p 7001:3000 resnet_service:23wjsyf7hkf3eusu
+docker run --name od_b4 --memory 6g --cpuset-cpus 45-48 --gpus "device=1" -p 7002:3000 object_detection:bgot4pf7hof3eusu
+docker run --name stt_b4 --memory 6g --cpuset-cpus 49-52 --gpus "device=1" -p 7003:3000 stt_service:eo5h47v7hof3eusu
+docker run --name tts_b4 --memory 4g --cpuset-cpus 53-56 --gpus "device=1" -p 7004:3000 tts_service:g5zanhv7hof3eusu
+docker run --name bert_b4 --memory 4g --cpuset-cpus 57-60 --gpus "device=1" -p 7005:3000 bert_service:6v2ouxv7hkf3eusu

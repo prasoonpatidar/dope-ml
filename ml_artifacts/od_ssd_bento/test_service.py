@@ -6,7 +6,7 @@ import time,sys
 import cv2
 
 imgfile = 'dog.jpg'
-port = 4000
+port = 6002
 request_url = 'edusense-compute-4.andrew.cmu.edu'
 
 if len(sys.argv)>1:
@@ -22,5 +22,6 @@ response = requests.post(
     data=json.dumps(numpy_img.tolist()))
 total_time = time.time()-st
 response_dict = json.loads(response.text)
-print(total_time)
+response_dict['request_time'] = total_time
+print(total_time, response_dict)
 
