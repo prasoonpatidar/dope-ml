@@ -10,5 +10,5 @@ python:
   packages:
    - pandas
    - numpy
-   - torch==1.10.0
+   - torch==1.11.0
    - pytorch_pretrained_bert
