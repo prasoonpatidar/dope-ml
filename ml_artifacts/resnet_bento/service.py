@@ -6,7 +6,9 @@ import torch, torch.nn
 from torchvision import transforms
 import time
 import json
-
+import psutil
+import GPUtil
+gpus = GPUtil.getGPUs()
 
 # load the runner
 resnet_runner = bentoml.pytorch.load_runner("resnet:latest")
@@ -32,6 +34,12 @@ def resnet_preprocess(img):
     output= JSON(),
 )
 def classify(np_input_image):
+    psutil.cpu_percent(interval=0.1)
+    memory_usage_pre = psutil.virtual_memory()
+    if len(gpus) > 0:
+        gpu_pre = [(gpu_device.id, gpu_device.load, gpu_device.memoryUtil) for gpu_device in gpus]
+    else:
+        gpu_pre = []
     input_image = PILImage.fromarray(np.uint8(np_input_image))
     start_time = time.time()
     input_tensor = resnet_preprocess(input_image)
@@ -49,8 +57,18 @@ def classify(np_input_image):
     # print(output[0])
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
     probabilities = torch.nn.functional.softmax(output[0], dim=0).cpu()
+    if len(gpus) > 0:
+        gpu_post = [(gpu_device.id, gpu_device.load, gpu_device.memoryUtil) for gpu_device in gpus]
+    else:
+        gpu_post = []
+    memory_usage_post = psutil.virtual_memory()
     result = {
         'probabilities':probabilities.detach().numpy().tolist(),
-        'time':time.time()-start_time
+        'time':time.time()-start_time,
+        'cpu_usage':psutil.cpu_percent(interval=None),
+        'ram_pre':list(memory_usage_pre),
+        'ram_post':list(memory_usage_post),
+        'gpu_pre':gpu_pre,
+        'gpu_post':gpu_post
     }
     return result

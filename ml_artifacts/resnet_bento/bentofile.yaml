@@ -12,6 +12,8 @@ python:
    - torch
    - torchvision
    - pillow
+   - psutil
+   - gputil
 
 
 # python3 -m pip install torch==1.10.0+cu102 torchvision==0.11.0+cu102 torchaudio -f https://download.pytorch.org/whl/torch_stable.html
