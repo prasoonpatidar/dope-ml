@@ -58,6 +58,7 @@ def classify(np_input_image):
     # print(output[0])
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
     probabilities = torch.nn.functional.softmax(output[0], dim=0).cpu()
+    inf_time = time.time() - start_time
     if len(gpus) > 0:
         gpu_post = [(gpu_device.id, gpu_device.load, gpu_device.memoryUtil) for gpu_device in gpus]
     else:
@@ -65,8 +66,8 @@ def classify(np_input_image):
     memory_usage_post = psutil.virtual_memory()
     result = {
         'probabilities':probabilities.detach().numpy().tolist(),
-        'time':time.time()-start_time,
-        'cpu_usage':psutil.cpu_percent(interval=None),
+        'time':inf_time,
+        'cpu_usage':psutil.cpu_percent(interval=inf_time, percpu=True),
         'ram_pre':list(memory_usage_pre),
         'ram_post':list(memory_usage_post),
         'gpu_pre':gpu_pre,
