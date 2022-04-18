@@ -31,7 +31,15 @@ Testing service on port: 3000 (3 CPUs Only)
 28 9.218538999557495 3.566594362258911
 29 7.074469804763794 1.648432970046997
 
+
+- 5 models
+- 64GB memory, 64 CPUs, 2 GPUs(2080Ti's)
+   -
+
+
+
 Testing service on port: 4000(4CPUs, 2 GPUs)
+  # E2E latency     # Inference Latency  #cpu_utilization #memory_utilization #gpu_utilization #input_size
 0 6.288274049758911 0.5800280570983887
 1 5.726100921630859 0.1695868968963623
 2 5.946146011352539 0.5947794914245605

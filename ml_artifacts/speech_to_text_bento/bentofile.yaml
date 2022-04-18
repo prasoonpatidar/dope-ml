@@ -14,3 +14,4 @@ python:
    - torch==1.11.0
    - torchaudio==0.11.0
    - pillow
+# sudo apt-get install libsndfile1
