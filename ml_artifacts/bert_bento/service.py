@@ -6,7 +6,7 @@ import torch
 # load models
 bert_tokenizer  = bentoml.pytorch.load('bert_tokenizer:latest')
 # bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-bert_lm_model = bentoml.pytorch.load('bert_lm_model:latest')
+bert_model = bentoml.pytorch.load('bert_lm_model:latest')
 
 bert_tokenizer_runner  = bentoml.pytorch.load_runner('bert_tokenizer:latest')
 bert_lm_model_runner = bentoml.pytorch.load_runner('bert_lm_model:latest')
@@ -38,9 +38,9 @@ def predict(request_payload):
     # check device configs
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device:", DEVICE)
-    bert_lm_model.to(DEVICE)
-    tokens_tensor.to(DEVICE)
-    segments_tensors.to(DEVICE)
+    bert_lm_model = bert_model.to(DEVICE)
+    tokens_tensor = tokens_tensor.to(DEVICE)
+    segments_tensors = segments_tensors.to(DEVICE)
 
     # call model
     predictions = bert_lm_model(tokens_tensor, segments_tensors)
