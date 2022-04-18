@@ -22,7 +22,6 @@ class GPUStatMonitor(Thread):
 
     def stop(self):
         self.is_running = False
-        super(GPUStatMonitor, self).stop()
 
 def get_all_queue_result(queue):
     result_list = []

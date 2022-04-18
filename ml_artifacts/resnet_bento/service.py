@@ -14,7 +14,6 @@ import GPUtil
 #setup stat monitor
 gpus = GPUtil.getGPUs()
 gpu_stat_queue = Queue()
-gpu_m=GPUStatMonitor(gpu_stat_queue)
 
 # load the runner
 resnet_runner = bentoml.pytorch.load_runner("resnet:latest")
@@ -44,6 +43,7 @@ def classify(np_input_image):
     memory_usage_pre = psutil.virtual_memory()
     if len(gpus) > 0:
         gpu_mem_pre = [gpu_device.memoryUtil for gpu_device in gpus]
+        gpu_m = GPUStatMonitor(gpu_stat_queue)
         gpu_m.start()
     else:
         gpu_mem_pre = []
