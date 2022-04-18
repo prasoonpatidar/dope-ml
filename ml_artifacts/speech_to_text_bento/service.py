@@ -5,6 +5,16 @@ import torchaudio
 import bentoml
 from bentoml.io import JSON, NumpyNdarray, Multipart
 
+from queue import Queue
+import psutil
+from GPUStatMonitor import GPUStatMonitor, get_all_queue_result
+import GPUtil
+
+#setup stat monitor
+gpus = GPUtil.getGPUs()
+gpu_stat_queue = Queue()
+
+
 model = bentoml.pytorch.load('stt_model:latest')
 stt_model_runner = bentoml.pytorch.load_runner('stt_model:latest')
 stt_decoder = bentoml.pytorch.load('stt_decoder:latest')
@@ -23,6 +33,17 @@ bundle_labels = bundle.get_labels()
 
 @stt_svc.api(input=JSON(), output=JSON())
 def convert(request_json):
+    # stats monitoring code
+    psutil.cpu_percent(interval=0.1)
+    memory_usage_pre = psutil.virtual_memory()
+    if len(gpus) > 0:
+        gpu_mem_pre = [gpu_device.memoryUtil for gpu_device in gpus]
+        gpu_m = GPUStatMonitor(gpu_stat_queue)
+        gpu_m.start()
+    else:
+        gpu_mem_pre = []
+
+    #actual runtime
     np_waveform = np.array(request_json['np_waveform'])
     sampling_rate = request_json['sampling_rate']
     start_time =time.time()
@@ -37,9 +58,28 @@ def convert(request_json):
 
     transcript = stt_decoder(emission.cpu()[0])
 
-    return {
+    # stats monitoring code
+    inf_time = time.time() - start_time
+    total_cpu_utilization = psutil.cpu_percent(interval=None)
+    if len(gpus) > 0:
+        gpu_mem_post = [gpu_device.memoryUtil for gpu_device in gpus]
+        gpu_m.stop()
+        gpu_load = get_all_queue_result(gpu_stat_queue)
+    else:
+        gpu_mem_post, gpu_load = [], []
+    memory_usage_post = psutil.virtual_memory()
+
+    result = {
         'transcript':transcript,
-        'time':time.time()-start_time
+        'time':inf_time,
+        'cpu_util':total_cpu_utilization,
+        'cpu_times':psutil.cpu_percent(interval=inf_time, percpu=True),
+        'ram_pre':list(memory_usage_pre),
+        'ram_post':list(memory_usage_post),
+        'gpu_mem_pre':gpu_mem_pre,
+        'gpu_mem_post':gpu_mem_post,
+        'gpu_load':gpu_load
     }
+    return result
 
 
