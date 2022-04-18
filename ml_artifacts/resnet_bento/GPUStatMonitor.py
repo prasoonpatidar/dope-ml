@@ -18,9 +18,11 @@ class GPUStatMonitor(Thread):
 
     def start(self):
         self.is_running=True
+        super(GPUStatMonitor, self).start()
 
     def stop(self):
         self.is_running = False
+        super(GPUStatMonitor, self).stop()
 
 def get_all_queue_result(queue):
     result_list = []
