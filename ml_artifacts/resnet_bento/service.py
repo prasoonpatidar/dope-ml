@@ -49,7 +49,7 @@ def classify(np_input_image):
     # move the input and model to GPU for speed if available
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device:", DEVICE)
-    input_batch = input_batch.to('cuda')
+    input_batch = input_batch.to(DEVICE)
     resnet_model_device = resnet_model.to(DEVICE)
 
     # with torch.no_grad():
