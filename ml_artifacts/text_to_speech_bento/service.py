@@ -21,6 +21,7 @@ tts_svc = bentoml.Service('tts_service', runners=[tts_model_runner, tts_decoder_
 
 @tts_svc.api(input=JSON(), output=JSON())
 def convert(request_payload):
+
     text_input = request_payload['input']
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     print("Device:", DEVICE)
