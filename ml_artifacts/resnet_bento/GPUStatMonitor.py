@@ -13,7 +13,7 @@ class GPUStatMonitor(Thread):
 
     def run(self):
         while self.is_running:
-            self.in_queue.put([gpu_device.load for gpu_device in self.gpus])
+            self.in_queue.put([(gpu_device.load,gpu_device.memoryUtil) for gpu_device in self.gpus])
             time.sleep(self.delay)
 
     def start(self):

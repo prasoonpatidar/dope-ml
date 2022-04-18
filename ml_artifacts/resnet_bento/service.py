@@ -50,9 +50,9 @@ def classify(np_input_image):
     input_image = PILImage.fromarray(np.uint8(np_input_image))
     start_time = time.time()
     input_tensor = resnet_preprocess(input_image)
-    print(input_tensor.shape)
+    # print(input_tensor.shape)
     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch as expected by the model
-    print(input_batch.shape)
+    # print(input_batch.shape)
     # move the input and model to GPU for speed if available
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device:", DEVICE)
