@@ -9,6 +9,7 @@ from queue import Queue
 import psutil
 from GPUStatMonitor import GPUStatMonitor, get_all_queue_result
 import GPUtil
+import resource
 
 #setup stat monitor
 gpus = GPUtil.getGPUs()
@@ -44,9 +45,14 @@ def convert(request_json):
         gpu_mem_pre = []
 
     #actual runtime
+    parent_start_rusage = resource.getrusage(resource.RUSAGE_SELF)
+    children_start_rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    start_time = time.time()
+
+    # get input
     np_waveform = np.array(request_json['np_waveform'])
     sampling_rate = request_json['sampling_rate']
-    start_time =time.time()
+
     waveform = torch.from_numpy(np_waveform).float().unsqueeze(0)
     if sampling_rate != bundle_sampling_rate:
         waveform = torchaudio.functional.resample(waveform, sampling_rate, bundle_sampling_rate)
@@ -60,7 +66,16 @@ def convert(request_json):
 
     # stats monitoring code
     inf_time = time.time() - start_time
+    cpu_times = psutil.cpu_percent(interval=inf_time, percpu=True)
     total_cpu_utilization = psutil.cpu_percent(interval=None)
+
+    # new stats method
+    children_end_rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    parent_end_rusage = resource.getrusage(resource.RUSAGE_SELF)
+    cpu_util = (children_end_rusage.ru_utime - children_start_rusage.ru_utime + parent_end_rusage.ru_utime -
+                parent_start_rusage.ru_utime) / inf_time * 100
+    max_mem = (children_end_rusage.ru_maxrss + parent_end_rusage.ru_maxrss) / (1024 * 1024 * 1024)
+
     if len(gpus) > 0:
         gpu_mem_post = [gpu_device.memoryUtil for gpu_device in gpus]
         gpu_m.stop()
@@ -73,9 +88,11 @@ def convert(request_json):
         'transcript':transcript,
         'time':inf_time,
         'cpu_util':total_cpu_utilization,
-        'cpu_times':psutil.cpu_percent(interval=inf_time, percpu=True),
+        'cpu_times':cpu_times,
         'ram_pre':list(memory_usage_pre),
         'ram_post':list(memory_usage_post),
+        'res_cpu_util': cpu_util,
+        'res_max_memory': max_mem,
         'gpu_mem_pre':gpu_mem_pre,
         'gpu_mem_post':gpu_mem_post,
         'gpu_load':gpu_load

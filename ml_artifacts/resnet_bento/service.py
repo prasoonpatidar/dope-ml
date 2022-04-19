@@ -10,6 +10,7 @@ from queue import Queue
 import psutil
 from GPUStatMonitor import GPUStatMonitor, get_all_queue_result
 import GPUtil
+import resource
 
 #setup stat monitor
 gpus = GPUtil.getGPUs()
@@ -47,8 +48,10 @@ def classify(np_input_image):
         gpu_m.start()
     else:
         gpu_mem_pre = []
-    input_image = PILImage.fromarray(np.uint8(np_input_image))
+    parent_start_rusage = resource.getrusage(resource.RUSAGE_SELF)
+    children_start_rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
     start_time = time.time()
+    input_image = PILImage.fromarray(np.uint8(np_input_image))
     input_tensor = resnet_preprocess(input_image)
     # print(input_tensor.shape)
     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch as expected by the model
@@ -66,7 +69,16 @@ def classify(np_input_image):
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
     probabilities = torch.nn.functional.softmax(output[0], dim=0).cpu()
     inf_time = time.time() - start_time
+    cpu_times = psutil.cpu_percent(interval=inf_time, percpu=True)
     total_cpu_utilization = psutil.cpu_percent(interval=None)
+
+    # new stats method
+    children_end_rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    parent_end_rusage = resource.getrusage(resource.RUSAGE_SELF)
+    cpu_util = (children_end_rusage.ru_utime - children_start_rusage.ru_utime + parent_end_rusage.ru_utime -
+                parent_start_rusage.ru_utime) / inf_time * 100
+    max_mem = (children_end_rusage.ru_maxrss + parent_end_rusage.ru_maxrss) / (1024 * 1024 * 1024)
+
     if len(gpus) > 0:
         gpu_mem_post = [gpu_device.memoryUtil for gpu_device in gpus]
         gpu_m.stop()
@@ -78,9 +90,11 @@ def classify(np_input_image):
         'probabilities':probabilities.detach().numpy().tolist(),
         'time':inf_time,
         'cpu_util':total_cpu_utilization,
-        'cpu_times':psutil.cpu_percent(interval=inf_time, percpu=True),
+        'cpu_times':cpu_times,
         'ram_pre':list(memory_usage_pre),
         'ram_post':list(memory_usage_post),
+        'res_cpu_util':cpu_util,
+        'res_max_memory':max_mem,
         'gpu_mem_pre':gpu_mem_pre,
         'gpu_mem_post':gpu_mem_post,
         'gpu_load':gpu_load

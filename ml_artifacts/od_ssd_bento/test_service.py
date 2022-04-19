@@ -6,9 +6,9 @@ import time,sys
 import cv2
 
 imgfile = 'dog.jpg'
-port = 6002
+port = 3000
 request_url = 'edusense-compute-4.andrew.cmu.edu'
-
+request_url = '0.0.0.0'
 if len(sys.argv)>1:
     port = int(sys.argv[1])
 print("Testing service on port:", port)

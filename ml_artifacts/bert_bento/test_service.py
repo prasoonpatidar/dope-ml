@@ -3,12 +3,12 @@ import json
 import time
 import sys
 
-port = 6005
+port = 3000
 if len(sys.argv)>1:
     port = int(sys.argv[1])
 print("Testing service on port:", port)
 request_url = 'edusense-compute-4.andrew.cmu.edu'
-# request_url = '0.0.0.0'
+request_url = '0.0.0.0'
 
 request_payload = {
     'input':"Who was Jim Henson ? Jim xx was a puppeteer",
