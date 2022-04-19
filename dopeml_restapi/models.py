@@ -29,5 +29,5 @@ class TTSModel(BaseModel):
 
 class ClientData(BaseModel):
     model: str
-    resource: str
+    resource: dict
     payload: dict

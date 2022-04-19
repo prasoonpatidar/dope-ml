@@ -32,22 +32,76 @@ async def read_item(model: str):
 
 @app.post("/inference")
 async def post_item(data: ClientData):
-    if data.model == "bert":
-        bentoPayload = data.payload
-        # bento_Payload = BertModel()
-        # bento_Payload.input = data.payload["input"]
-        # bento_Payload.masked_index = data.payload["masked_index"]
-        # bento_Payload.segments_ids = data.payload["segments_ids"]
+    # Check which backend instance to schedule the device on.
 
+    if not data.model or not data.resource or not data.payload:
+        return {"success": "false"}
+
+    gpu_present_flag = False
+    bento_instance = settings.B1
+
+    if data.resource["gpu"] != 0:
+        gpu_present_flag = True
+
+    if data.resource["cpu"] <= 50:
+        if gpu_present_flag:
+            bento_instance = settings.B3
+        else:
+            bento_instance = settings.B1
+    elif data.resource["cpu"] > 50:
+        if gpu_present_flag:
+            bento_instance = settings.B4
+        else:
+            bento_instance = settings.B2
+
+    if data.model == "bert":
+        bento_payload = BertModel(input=data.payload["input"],
+                                  masked_index=data.payload["masked_index"],
+                                  segments_ids=data.payload["segments_ids"])
         st = time.time()
         response = requests.post(
-            f"http://{settings.gpuClusterConfigUrl}:{settings.gpuClusterBertPort}/predict",
+            f"http://{bento_instance['url']}:{bento_instance['bert']['port']}/predict",
             headers={"content-type": 'application/json'},
-            data=json.dumps(bentoPayload))
+            data=json.dumps(bento_payload.dict()))
         total_time = time.time() - st
         response_dict = json.loads(response.text)
         print(total_time, str(response_dict))
-        return {"success": "true"}
+        # return {"success": "true"}
+        return response_dict
+    elif data.model == "ssd":
+        ssd_payload = SSDModel(data=data.payload)
+        st = time.time()
+        response = requests.post(
+            f"http://{settings.B1['url']}:{settings.B1['bert']['port']}/predict",
+            headers={"content-type": 'application/json'},
+            data=json.dumps(ssd_payload.dict()))
+        total_time = time.time() - st
+        response_dict = json.loads(response.text)
+        print(total_time, str(response_dict))
+        # return {"success": "true"}
+        return response_dict
+    elif data.model == "resnet":
+        resnet_payload = ResNetModel(data=data.payload)
+        st = time.time()
+        response = requests.post(
+            f"http://{settings.B1['url']}:{settings.B1['bert']['port']}/predict",
+            headers={"content-type": 'application/json'},
+            data=json.dumps(resnet_payload.dict()))
+        total_time = time.time() - st
+        response_dict = json.loads(response.text)
+        print(total_time, str(response_dict))
+        return response_dict
+    elif data.model == "rnn-t":  # STT
+        rnnt_payload = STTModel(np_waveform=data.payload["np_waveform"],
+                                sampling_rate=data.payload["sampling_rate"])
+        st = time.time()
+        response = requests.post(
+            f"http://{settings.B1['url']}:{settings.B1['bert']['port']}/predict",
+            headers={"content-type": 'application/json'},
+            data=json.dumps(rnnt_payload.dict()))
+        total_time = time.time() - st
+        response_dict = json.loads(response.text)
+        print(total_time, str(response_dict))
         return response_dict
 
     return {"success": "false"}
