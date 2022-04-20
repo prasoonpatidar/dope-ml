@@ -23,7 +23,9 @@ def do_inference(app, model, backend):
     global profiled_df
     port = model_backend_map[model][backend]
     endpoint = model_endpoint_map[model]
-    payload = model_payload_map[model]
+
+    idx = random.randint(0, len(model_payload_map[model])-1)
+    payload = model_payload_map[model][idx]
 
     payload_json = json.dumps(payload)    
     response = requests.post(
@@ -63,7 +65,7 @@ def main():
     global profiled_df
     for model in available_models.keys():
         app_name = available_models[model]
-        for i in range(0,1):
+        for i in range(0,500):
             be = list(model_backend_map[model].keys())
             idx = random.randint(0, len(be)-1)
             selected_be = be[idx]

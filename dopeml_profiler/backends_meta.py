@@ -74,19 +74,95 @@ speech_file = 'output_wavernn.wav'
 np_waveform, sampling_rate = sf.read(speech_file)
 img_file = 'dog.jpg'
 
-model_payload_map = {
-    "bert": {
+tts_payloads = [
+    {
+        'input':"Tooth",
+    },
+    {
+        'input':"Tooth is an example",
+    },
+    {
+        'input':"Why only Tooth is an example, Teeth can also be an example",
+    },
+    {
+        'input':"Why only Tooth is an example, Teeth can also be an example. Teeth can also be an example.",
+    },
+    {
+        'input':"Why only Tooth is an example, Teeth can also be an example. Teeth can also be an example. Teeth can also be an example. Some more",
+    },
+]
+
+img_payloads = [
+    np.array(Image.open('img_xs.jpg')).tolist(),
+    np.array(Image.open('img_s.jpg')).tolist(),
+    np.array(Image.open('img_m.jpg')).tolist(),
+    np.array(Image.open('img_l.jpg')).tolist(),
+    np.array(Image.open('img_xl.jpg')).tolist()
+]
+
+bert_payloads = [
+    {
+        'input':"Who was Jim Henson ? Jim xx was a puppeteer Hellow this is a testing string",
+        'masked_index':8,
+        'segments_ids' : [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1]
+    },
+    {
+        'input':"Who was Jim Henson ? Jim xx was a puppeteer Who knows Jim? If there's Jim, Where is Pam? How can this string be made longer than it is now? What will it affect? Let's see",
+        'masked_index':6,
+        'segments_ids' : [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    },
+    {
         'input':"Who was Jim Henson ? Jim xx was a puppeteer",
         'masked_index':6,
         'segments_ids' : [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
     },
-    "resnet": np.array(Image.open(img_file)).tolist(),
-    "ssd": np.array(Image.open(img_file)).tolist(),
-    "stt": {
-        'np_waveform':np_waveform.tolist(),
-        'sampling_rate':sampling_rate
+    {
+        'input':"Who was Jim Henson ? Jim xx was a puppeteer If there's Jim, Where is Pam? How can this",
+        'masked_index':6,
+        'segments_ids' : [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
     },
-    "tts": {
-    'input':"Tooth",
+    {
+        'input':"Who was Jim ",
+        'masked_index':3,
+        'segments_ids' : [0, 0, 1, 1]
     }
+]
+
+
+np_waveform1, sampling_rate1 = sf.read('audio_1.wav')
+np_waveform2, sampling_rate2 = sf.read('audio_2.wav')
+np_waveform3, sampling_rate3 = sf.read('audio_3.wav')
+np_waveform4, sampling_rate4 = sf.read('audio_4.wav')
+np_waveform5, sampling_rate5 = sf.read('audio_5.wav')
+
+audio_payloads = [
+    {
+        'np_waveform':np_waveform1.tolist(),
+        'sampling_rate':sampling_rate1
+    },
+    {
+        'np_waveform':np_waveform2.tolist(),
+        'sampling_rate':sampling_rate2
+    },
+    {
+        'np_waveform':np_waveform3.tolist(),
+        'sampling_rate':sampling_rate3
+    },
+    {
+        'np_waveform':np_waveform4.tolist(),
+        'sampling_rate':sampling_rate4
+    },
+    {
+        'np_waveform':np_waveform5.tolist(),
+        'sampling_rate':sampling_rate5
+    }
+]
+
+
+model_payload_map = {
+    "bert": bert_payloads,
+    "resnet": img_payloads,
+    "ssd": img_payloads,
+    "stt": audio_payloads,
+    "tts": tts_payloads
 }
