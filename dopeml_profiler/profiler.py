@@ -34,10 +34,11 @@ def do_inference(app, model, backend):
     input_length = len(payload_json)
 
     response_dict = json.loads(response.text)
+    response_dict['res_max_memory'] *= 1024
     # print(response_dict)
 
     gpu_mem = 0 if response_dict['gpu_mem_post'] == [] else response_dict['gpu_mem_post'][0]
-    gpu_util = 0 if ['gpu_load'] == [] else ['gpu_load'][0][0]
+    gpu_util = 0 if response_dict['gpu_load'] == [] else response_dict['gpu_load'][0][0]
     
     got_values = [app, 
                     model, 
@@ -46,14 +47,16 @@ def do_inference(app, model, backend):
                     model_characteristics[model]['hidden_size'], 
                     response_dict['time'],
                     input_length,
-                    response_dict['cpu_util'],
+                    response_dict['res_cpu_util'],
                     # response_dict['gpu_util'],
                     gpu_util,
                     # response_dict['cpu_mem'],
-                    response_dict['ram_post'][0],
+                    response_dict['res_max_memory'],
                     gpu_mem]
 
-    profiled_df = pd.DataFrame(np.insert(profiled_df.values, 0, values=got_values, axis=0))
+    # profiled_df = profiled_df(np.insert(profiled_df.values, 0, values=got_values, axis=0))
+    profiled_df.loc[len(profiled_df)] = got_values
+    # profiled_df.append(got_values, ignore_index=True)
 
 
 def main():
@@ -67,6 +70,7 @@ def main():
             do_inference(app_name, model, selected_be)
     
     profiled_df = shuffle(profiled_df)
+    print(profiled_df.head())
     profiled_df.to_csv("models_profile.csv")
 
 
